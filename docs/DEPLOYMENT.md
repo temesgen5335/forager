@@ -118,4 +118,4 @@ Then DM your bot `/status` and `/jobs`.
 ## Security
 - `.env` and `*.session` never leave the VPS and are gitignored.
 - The bot is owner-locked to `TELEGRAM_CHAT_ID` (fails closed).
-- Keep Telegram fetch rates conservative (the 4h cadence + jitter is deliberate).
+- Keep Telegram fetch rates conservative — the default 4h cadence + jitter is deliberate; if you lower `INGEST_EVERY_HOURS`, keep it polite to the sources.

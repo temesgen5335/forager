@@ -22,7 +22,9 @@ echo "Python: $PYTHON"
 env_get() {  # env_get KEY DEFAULT — reads KEY from .env, else DEFAULT
   local key="$1" def="$2" val=""
   if [[ -f "$REPO/.env" ]]; then
-    val="$(grep -E "^[[:space:]]*${key}=" "$REPO/.env" | tail -1 | cut -d= -f2-)"
+    # `|| true`: a no-match grep exits 1, which under `set -euo pipefail` can abort the
+    # install on the "key absent -> use default" path (behavior varies by bash version).
+    val="$(grep -E "^[[:space:]]*${key}=" "$REPO/.env" | tail -1 | cut -d= -f2- || true)"
     val="${val%%#*}"                    # strip trailing comment
     val="${val//\"/}"; val="${val//\'/}"   # strip quotes
     val="$(echo -n "$val" | xargs)"     # trim surrounding whitespace
