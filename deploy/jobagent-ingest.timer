@@ -1,10 +1,12 @@
 [Unit]
-Description=Frequent job ingestion (runs jobagent-ingest.service every 4h)
+Description=Frequent job ingestion (interval from .env INGEST_EVERY_HOURS)
 
 [Timer]
-OnCalendar=*-*-* 00/4:00:00    # every 4 hours, on the hour
+# OnCalendar + jitter are filled from .env (INGEST_EVERY_HOURS, INGEST_JITTER_SEC)
+# by scripts/install_services.sh — edit .env and re-run the installer to change them.
+OnCalendar=__INGEST_ONCALENDAR__
 Persistent=true
-RandomizedDelaySec=300         # jitter to be polite to sources
+RandomizedDelaySec=__INGEST_JITTER__
 
 [Install]
 WantedBy=timers.target
