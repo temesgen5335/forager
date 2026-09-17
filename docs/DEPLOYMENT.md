@@ -36,6 +36,10 @@ layer — see `docs/ARCHITECTURE.md`; there is no separate agent process to run.
 | `jobagent-ingest.timer` → `jobagent-ingest.service` | oneshot | every 4h (+jitter) | ingest + match, no push |
 | `jobagent-pipeline.timer` → `jobagent-pipeline.service` | oneshot | daily 07:00 local | ingest + match + **send digest** |
 
+Cadence is set in `.env` — `INGEST_EVERY_HOURS` (default 4), `DIGEST_AT` (default `07:00`,
+server-local), `INGEST_JITTER_SEC` (default 300). `install_services.sh` renders the timers
+from those, so the "every 4h" / "daily 07:00" above are just the defaults.
+
 ## Prerequisites
 - A Linux VPS (Ubuntu/Debian) with sudo. No GPU needed (LLM is via OpenRouter).
 - This repo cloned on the box (e.g. `~/PersonalAgent`).
@@ -106,7 +110,7 @@ sudo systemctl start jobagent-pipeline.service   # trigger a digest now
 Then DM your bot `/status` and `/jobs`.
 
 ## Operations
-- **Change schedule:** edit `deploy/*.timer`, re-run `sudo bash scripts/install_services.sh`.
+- **Change schedule:** edit `INGEST_EVERY_HOURS` / `DIGEST_AT` / `INGEST_JITTER_SEC` in `.env`, then re-run `sudo bash scripts/install_services.sh`.
 - **Update code:** `git pull` → `uv pip install -e ".[telegram,llm]"` → `sudo systemctl restart jobagent-bot`.
 - **Logs:** `journalctl -u jobagent-ingest --since '1 day ago'`.
 - **Stop everything:** `sudo systemctl disable --now jobagent-bot jobagent-pipeline.timer jobagent-ingest.timer`.
@@ -114,4 +118,4 @@ Then DM your bot `/status` and `/jobs`.
 ## Security
 - `.env` and `*.session` never leave the VPS and are gitignored.
 - The bot is owner-locked to `TELEGRAM_CHAT_ID` (fails closed).
-- Keep Telegram fetch rates conservative (the 4h cadence + jitter is deliberate).
+- Keep Telegram fetch rates conservative — the default 4h cadence + jitter is deliberate; if you lower `INGEST_EVERY_HOURS`, keep it polite to the sources.

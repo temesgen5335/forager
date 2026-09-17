@@ -1,10 +1,11 @@
 [Unit]
-Description=Daily job digest (runs jobagent-pipeline.service)
+Description=Daily job digest (time from .env DIGEST_AT)
 
 [Timer]
-# 07:00 server-local time. Set the server TZ first so this means your timezone:
-#   sudo timedatectl set-timezone <Region>/<City>    # e.g. Europe/Berlin
-OnCalendar=*-*-* 07:00:00
+# OnCalendar is filled from .env (DIGEST_AT) by scripts/install_services.sh — edit .env
+# and re-run the installer to change it. Set the server TZ first so this means your local
+# time: sudo timedatectl set-timezone <Region>/<City>   (e.g. Europe/Berlin)
+OnCalendar=__DIGEST_ONCALENDAR__
 Persistent=true
 
 [Install]

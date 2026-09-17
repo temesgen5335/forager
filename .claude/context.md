@@ -104,7 +104,7 @@ Two interfaces, one backend:
 | Lifecycle + pass seams | Done (v3.8.0) — `lifecycle.transition()` (two routes + the tool) and `pipeline.run_pass()` (API task, scheduled script, agent); API-triggered passes now write a `run` row tagged `trigger: api` |
 | Profile & preferences | **Editable through the UI.** Identity, background, CV, search preferences, source toggles and the ATS watchlist all persist to a gitignored `data/profile.json` + `data/cv_master.md` overlay (three-layer merge: committed placeholders → legacy `preferences.local.toml` → writable overlay). `/profile` GET+PUT (both auth-gated — PII). Nothing personal is hardcoded; the tree carries placeholders only (R22) |
 | Settings UI | Tabbed: Profile · CV & background · Search & matching · Sources & watchlist · Ingestion · LLM · Telegram · Email. Each tab saves independently against the backend that owns it (`/profile` or `/config`) |
-| Test suite | 821 tests, 60 test files, zero network, injectable fakes throughout |
+| Test suite | 821 tests, 61 test files, zero network, injectable fakes throughout |
 
 ## Assistant cost characteristics (measured Aug 2026)
 
@@ -202,5 +202,5 @@ not-seen-in-60-days would remove 3,417.
 
 - **11,700+** jobs scored in a live run (8,253 fetched in a single pass across 6 adapters)
 - **40** companies in the ATS watchlist (Greenhouse/Lever/Ashby)
-- **821** tests across 60 files — all run offline, no network, no credentials
+- **821** tests across 61 files — all run offline, no network, no credentials
 - **6** LLM providers with automatic failover (3 free, 3 paid)
