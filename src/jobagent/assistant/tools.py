@@ -100,7 +100,7 @@ def build_tools(*, store, settings, links, index=None, deps=None) -> list[Regist
         hours = h.get("hours_since_ingest")
         lines = [
             f"jobs={s.get('total_jobs')} matches={s.get('matches')} "
-            f"strong={s.get('strong_matches')} queue={s.get('queue')} "
+            f"catch={s.get('strong_matches')} queue={s.get('queue')} "
             f"applications={s.get('total_apps')}",
             f"last ingest: {h.get('last_ingest') or 'never'}"
             + (f" ({hours:.1f}h ago)" if isinstance(hours, (int, float)) else ""),

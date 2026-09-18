@@ -203,7 +203,7 @@ def status_text(stats: dict) -> str:
         "📊 *Pipeline status*\n"
         f"Total jobs: {stats.get('total_jobs', 0)}\n"
         f"Scored matches: {stats.get('matches', 0)} "
-        f"(strong ≥70%: {stats.get('strong_matches', 0)})\n"
+        f"(the catch ≥70%: {stats.get('strong_matches', 0)})\n"
         f"Last ingest: {last}\n"
         f"By sense:\n{src_lines}"
     )

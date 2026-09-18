@@ -33,7 +33,7 @@ def test_status_text_renders_counts():
     })
     assert "Total jobs: 7000" in text
     assert "greenhouse: 5000" in text
-    assert "strong ≥70%: 120" in text
+    assert "the catch ≥70%: 120" in text
 
 
 def test_upskill_text_renders_gap_heatmap():

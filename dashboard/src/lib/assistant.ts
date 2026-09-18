@@ -229,7 +229,7 @@ function el(tag: string, cls?: string | null, text?: string) {
 export const SUGGESTIONS = [
   "Is the pipeline healthy?",
   "What did the last run do?",
-  "Which strong matches am I ignoring?",
+  "How much of my catch am I ignoring?",
   "Are any sources stale?",
 ];
 
