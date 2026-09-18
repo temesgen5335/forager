@@ -82,7 +82,7 @@ talk about what's happening:
 | Term                | What it is                                                          |
 | ------------------- | ------------------------------------------------------------------- |
 | **Senses**    | your ingestion sources                                              |
-| **Forage**    | one ingest → match pass (run it with`make forage` — `make pipeline` is the alias) |
+| **Forage**    | one ingest → match pass (run it with`make forage`, an alias of `make pipeline`) |
 | **Hunt**      | the matcher — the roles you can actually take                      |
 | **Scavenge**  | recovery + de-duplication across scattered sources                  |
 | **Den**       | your self-hosted SQLite store — private, local, yours              |
