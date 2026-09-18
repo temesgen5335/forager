@@ -223,7 +223,7 @@ def test_a_broken_audit_trail_stops_every_call_before_the_gate(rig):
             return await c.call_tool("pipeline_health", {})
 
     r = anyio.run(main)
-    assert r.is_error and "audit trail is unavailable" in r.content[0].text
+    assert r.is_error and "trail is unavailable" in r.content[0].text
     # The injected failure is over; hand the working sink back so the session can close
     # onto the ledger at teardown (op.close() writes its final `run` line through it).
     op.run(lambda: setattr(op.assistant.auditor, "sink", healthy))

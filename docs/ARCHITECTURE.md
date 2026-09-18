@@ -39,8 +39,8 @@ Actions); the **FastAPI orchestrator** is the single backend; **SQLite** is the 
                                         ┌──────────────────────────────────┐
                                         │        SQLITE STORE (SSoT)       │
                                         │ jobs · matches · applications ·  │
-                                        │ cv_variants · events (run ledger,│
-                                        │ health, audit trail)             │
+                                        │ cv_variants · events (trail,     │
+                                        │ health)                          │
                                         └──────────────────────────────────┘
 ```
 
@@ -90,7 +90,7 @@ whether an action may run is given no access to the transcript or to retrieved t
 so a prompt injection can make the model *ask* for something but cannot make the
 gatekeeper agree. Confirmations are server-side and bound to the exact arguments.
 
-Assistant sessions ride the existing run ledger (`kind_detail="agent_session"`), so
+Assistant sessions ride the existing trail (`kind_detail="agent_session"`), so
 they are auditable with no new storage — and are filtered out of `list_runs()` by
 default, because a session has no ingest counts and would render as a blank pass.
 
@@ -144,8 +144,8 @@ runs anywhere, including CI.
 ## Data flow
 1. A systemd timer (or `make pipeline`) starts a pass. The pass mints a **run_id**
    that rides every event it emits.
-2. Ingestion adapters fetch → normalize into `JobPosting` (full payload kept in
-   `raw`) → dedup by `sha256(company|title|location)` → upsert. One bad source logs
+2. Senses fetch → normalize into `JobPosting` (full payload kept in
+   `raw`) → dedup by `sha256(company|title|location)` → upsert. One bad sense logs
    an `error` event and the rest continue.
 3. Matching scores **every** job with the preference-weighted heuristic (no API
    cost): tiered role signal (title ≫ tags ≫ body), weighted skill coverage
@@ -164,7 +164,7 @@ runs anywhere, including CI.
    (`ALLOWED_TRANSITIONS`); out-of-process corrections require an explicit, audited
    flag. Follow-ups are **drafts only** — no send path exists.
 8. The dashboard reads everything through the API: analytics, funnel, pipeline
-   health, the run ledger, and the same fit checker the bot uses.
+   health, the trail, and the same fit checker the bot uses.
 
 ## Matching quality
 The scorer has a regression net beyond unit tests: a labeled eval set
@@ -179,7 +179,7 @@ the ranked table for tuning. Floors sit at measured reality; the one known miss
 One **run_id** threads ingest → match → digest. Matching logs a `match` event; each
 pass ends with a `run` summary (duration, per-stage counts, digest outcome) that
 `GET /runs` lists and `GET /runs/{id}` expands into the pass's full event sequence.
-`Store.pipeline_health()` derives staleness, a windowed error count, and per-source
+`Store.pipeline_health()` derives staleness, a windowed error count, and per-sense
 freshness from the same trail; the dashboard banners staleness and the digest carries
 a warning prefix, so a silently dead pipeline is a state the UI cannot render as
 healthy.
@@ -196,12 +196,12 @@ new write route ships ungated. Secrets live in `.env` or the Fernet-encrypted st
 the committed config carries placeholders only.
 
 ## Resilience
-Source HTTP goes through `get_with_retry` — bounded exponential backoff with full
+Sense HTTP goes through `get_with_retry` — bounded exponential backoff with full
 jitter, retrying 429/5xx and transport errors while treating other 4xx as permanent,
-honoring a capped `Retry-After`. A failing adapter logs an `error` event and the run
+honoring a capped `Retry-After`. A failing sense logs an `error` event and the run
 continues. Recovery is graceful everywhere: LLM providers fail over in an ordered
 chain, a missing LLM degrades matching to heuristic-only and fit to the offline
-report, and a failed digest send is reported in the run summary rather than crashing
+report, and a failed digest send is reported on the trail rather than crashing
 the pass.
 
 ## Tech stack

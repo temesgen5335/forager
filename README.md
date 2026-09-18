@@ -54,7 +54,7 @@ letters.
 - **Hunts** the roles you can *actually take* — preference-weighted scoring plus a
   configurable geographic filter, so `remote_scope="global"` keeps genuinely worldwide-remote
   roles and demotes the ones locked to a region you're not in. On one live 17k-posting den,
-  turning it on cut the "strong match" queue from **311 to the handful of genuinely reachable
+  turning it on cut the catch from **311 to the handful of genuinely reachable
   roles** — the rest were remote-US / remote-UK / onsite you couldn't take.
 - **Applies** only when you say go — Baer drafts a tailored CV + cover letter + email, shows
   you *exactly what will be sent*, and submits only on your explicit approval. It never
@@ -82,7 +82,7 @@ talk about what's happening:
 | Term                | What it is                                                          |
 | ------------------- | ------------------------------------------------------------------- |
 | **Senses**    | your ingestion sources                                              |
-| **Forage**    | one pipeline pass — ingest → match (run it with`make pipeline`) |
+| **Forage**    | one ingest → match pass (run it with`make forage` — `make pipeline` is the alias) |
 | **Hunt**      | the matcher — the roles you can actually take                      |
 | **Scavenge**  | recovery + de-duplication across scattered sources                  |
 | **Den**       | your self-hosted SQLite store — private, local, yours              |
@@ -90,14 +90,15 @@ talk about what's happening:
 | **Stash**     | triage — snooze or set a posting aside for later                   |
 | **The catch** | a strong match, or a landed application                             |
 
-*(Today the CLI still uses the plain names — `make pipeline`, the "store", the "run ledger".
-The dialect lands in the tooling itself in a follow-up.)*
+*(The dialect runs through the tooling now — logs, CLI output, and the code itself speak
+this vocabulary. `make pipeline` still works; `make forage` is the same command by its own
+name.)*
 
 ## Ask Baer
 
 ```bash
 make ask Q="is the pipeline healthy?"
-make ask Q="which strong matches am I ignoring?"
+make ask Q="how much of my catch am I ignoring?"
 make doctor                                   # why is it using that model? (offline)
 ```
 
@@ -114,7 +115,7 @@ the answer (measured 100% tool-selection / 100% answer-grounding on the free tie
 Open the repo in Claude Code (or any MCP client): `.mcp.json` registers the
 `personalagent` server, which exposes the governed toolbox — pull jobs, list and sort
 matches, fit-check, triage, draft, track applications — with every action confirmed by
-you and recorded on the run ledger. It can never send or approve anything (R2).
+you and recorded on the trail. It can never send or approve anything (R2).
 `make mcp_check` lists the surface offline. See `AGENTS.md` § 3a.
 
 <details>

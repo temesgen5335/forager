@@ -67,7 +67,7 @@ Two interfaces, one backend:
 | Weighted matching | Done (Tier 2) — skill weights, role-zone tiers, seniority + must-have checks |
 | Gap surfacing | Done (Tier 2) — gaps as chips in the dashboard job list |
 | Follow-up reminders | Done (Tier 2) — quiet-application list + drafted nudges (never sent) |
-| Run-ID spine | Done (Tier 3) — one id ingest→match→digest, run ledger, GET /runs + /runs/{id} |
+| Run-ID spine | Done (Tier 3) — one id ingest→match→digest, trail, GET /runs + /runs/{id} |
 | Matching eval harness | Done (Tier 3) — 24 labeled traps, P@5=1.0 / P@10≥0.9 floors, tuning CLI |
 | Architecture doc | Done (Tier 3) — rewritten around the real system; legacy Hermes diagram gone |
 | Ingest lock (M5) | Done — SQLite advisory lock w/ 2h TTL; second pass exits, API returns 409 |
@@ -76,15 +76,15 @@ Two interfaces, one backend:
 | Store retention | Done — `prune_jobs(older_than_days)`; jobs you applied to are never pruned |
 | Provider coverage | groq · gemini · openai · anthropic · qwen · openrouter · custom, all assembled by `build_chain(settings)`. Families resolve by pattern and open models by parameter size, so adding a key needs no code change |
 | agentkit (Phase 1) | **Complete.** `src/agentkit/`: chat+tools IR, provider translation, measured tier registry, classified errors, circuit breaker, router (`plans_for`/`choose_strategy`), the nine strategy executors, the `ToolBox` seam, tolerant JSON, and the `Runner` that walks the plan queue. Verified live: the same task answered correctly through `native_loop` on llama-3.3-70b and through `prefetch_single_shot` on llama-3.1-8b (measured incapable of a tool loop), and a full failover walk 401→429→answer across three providers |
-| Triage respected everywhere | Done — dismissed/snoozed jobs leave the digest, bot `/jobs` and `/apply` numbering; the dashboard opts out (`hide_triaged=False`) so it can still render Undo |
-| Triage | Done — dismiss/snooze/note per job (triage table, POST /triage, queue count) |
+| Stash respected everywhere | Done — dismissed/snoozed jobs leave the digest, bot `/jobs` and `/apply` numbering; the dashboard opts out (`hide_triaged=False`) so it can still render Undo |
+| Stash | Done — dismiss/snooze/note per job (triage table, POST /triage, queue count) |
 | Queue parity | Done (Aug 2026) — the number the badge shows and the rows `/jobs` renders are now the same set. `/jobs` passes `max_per_company=None` (the bot keeps its cap) and the page defaults to `within=any`. Verified live: 231 = 231 |
 | Manual ingestion trigger | Done (Aug 2026) — "Pull Jobs" on the Overview calls `POST /ingest`, then polls `/runs/{id}` for per-source progress and reloads. Until this, nothing in any UI could start a pass, and no scheduler is live (see below). Verified live: 8,363 fetched across all 6 adapters, zero errors |
 | Standalone LLM service | Done (v3.7.0) — `agentkit.llm.LLMService`: chain + breaker + trace ledger + concurrent pre-flight behind one duck-typed object. Verified usable with `jobagent` absent. `make doctor HEALTH=1` |
 | Provider coverage (live) | groq · cerebras · gemini · github · openrouter · qwen · custom · openai · anthropic. **Verified live Aug 2026**: groq `openai/gpt-oss-20b` 0.84s, openrouter `gpt-oss-20b:free` 4.16s, gemini `gemini-flash-latest` 9.06s. Both previous defaults were dead |
 | Inbox outcomes | Done (v3.6.0) — optional IMAP scan PROPOSES interview/offer/rejected for one-tap confirmation; never applies one. Obeys `ALLOWED_TRANSITIONS`, audited with `source: "inbox"`. `make inbox`. **Classifier and attribution tested against fixtures; never run against a real mailbox** |
 | Bot handler coverage | Done (v3.6.0) — fake `Update`/`Context` harness in `tests/test_bot_handlers.py`. Closes the gap that let an undefined `_llm()` ship in `/apply`. Covers the owner gate, every command, malformed args, and a no-`None` check |
-| LLM usage accounting | Done (v3.6.0) — calls/failures/estimated tokens per provider on the run ledger. Failures counted, because a dead first backend is invisible when the answer still arrives from the next |
+| LLM usage accounting | Done (v3.6.0) — calls/failures/estimated tokens per provider on the trail. Failures counted, because a dead first backend is invisible when the answer still arrives from the next |
 | Aggregator source | Done (v3.5.0) — JSearch adapter (LinkedIn/Indeed/Glassdoor/ZipRecruiter via RapidAPI). Queries come from `target_roles`; self-gates on key AND queries. Needs `JSEARCH_API_KEY` + `[sources] aggregator = true`. **Built and tested against fixtures; never run against the live API** — no key available |
 | Cross-board clustering | Done (v3.5.0) — `cluster_key` groups the same role across boards WITHOUT touching `dedup_hash`, which is the PK every application references. Dashboard shows "also on N" |
 | Salary | Done (v3.5.0) — parsed to columns at write time, chip in the list, annualised min-salary filter. Unknown pay is KEPT by the filter (most postings state none) |
@@ -95,13 +95,13 @@ Two interfaces, one backend:
 | Job cleanup | Done (Aug 2026) — `purge_jobs()` + `POST /jobs/purge` + a preview→confirm panel on /jobs. Filters shared with the list via `_row_predicates`, `dry_run` default true, unfiltered purge refused, applications/CVs/notes spared unconditionally, knowledge index dropped on delete |
 | Shared sign-in prompt | Done (Aug 2026) — `window.JA.signIn()` in `Layout.astro`: any page's 401 raises a password modal and retries once. Writes the same `jobagent_token` the Settings page does, so one session covers both. 403 (no `DASHBOARD_PASSWORD` on the API) is reported as its own case, never as a wrong password |
 | Ingest gate | Done — age/locations/drop-keywords + source selection, editable in Settings, applied before storage with per-reason drop counts |
-| Dashboard v3 | Done — sidebar shell, health-first Overview, triage queue + focus mode, fit-check states, nudge banner, locked Settings (from the Claude Design project) |
+| Dashboard v3 | Done — sidebar shell, health-first Overview, stash queue + focus mode, fit-check states, nudge banner, locked Settings (from the Claude Design project) |
 | agentkit (Phase 2) | **Complete.** Permission tiers (READ/ACT/ADMIN + structural exclusion), argument-bound single-use confirmations, FTS5 knowledge index with per-chunk provenance and trust, fail-closed audit on the run_id spine, and `GuardedToolBox` — same shape as `ToolBox`, so it drops into the Runner and there is no ungoverned path |
 | assistant (Phase 3) | **Complete.** `src/jobagent/assistant/`: 15 chat tools, R2 exclusions as absences (no send/approve/ats tool exists), `CONFIG_WRITABLE` allow-list with frozen as the computed complement, impact previews dry-run over real stored rows, config snapshots + rollback, and FTS5 search over postings fenced as UNTRUSTED |
 | assistant interfaces (Phase 4) | **Complete + extended.** Four surfaces on one mechanism: `scripts/ask.py` (CLI), the `/assistant` dashboard page, a floating chat **bubble on every page** (`components/AssistantBubble.astro`), and Telegram `/ask`. The bubble and the page share one client (`lib/assistant.ts`) and one `localStorage` session, so a conversation continues seamlessly between them until cleared with New chat. Confirmations differ only in renderer — the CLI binds to `sha256(args)`, HTTP and Telegram send only a nonce and keep the arguments server-side. Config writes are refused on chat by construction (`Surface.CHAT` is outside `admin_surfaces`) |
 | assistant hardening (Phase 5) | **Complete.** 10-case eval set scoring tool *selection*, answer *grounding* and *in-bounds* separately; `scripts/eval_assistant.py` with floors; `scripts/llm_doctor.py` explaining the chain, every model card's provenance, and per-task routing offline. Degraded-path conformance run measured **100% / 100% / 100%** |
-| MCP operator server | **Done (v3.8.0).** `src/jobagent/mcp/`: the governed toolbox over stdio for Claude Code / Codex; 14 operator tools (pull_jobs, rematch, list_matches, company_dossier, fit_check, draft_application, set/correct_application_status, annotate_job, setup_status, current_profile, lifecycle, propose/apply_profile_change) hidden from chat via `Registration.surfaces`; confirmations via SDK resolvers with the Gatekeeper nonce underneath; ADMIN hidden unless `--admin`; every call on the run ledger under one session run id. `make mcp_check` |
-| Lifecycle + pass seams | Done (v3.8.0) — `lifecycle.transition()` (two routes + the tool) and `pipeline.run_pass()` (API task, scheduled script, agent); API-triggered passes now write a `run` row tagged `trigger: api` |
+| MCP operator server | **Done (v3.8.0).** `src/jobagent/mcp/`: the governed toolbox over stdio for Claude Code / Codex; 14 operator tools (pull_jobs, rematch, list_matches, company_dossier, fit_check, draft_application, set/correct_application_status, annotate_job, setup_status, current_profile, lifecycle, propose/apply_profile_change) hidden from chat via `Registration.surfaces`; confirmations via SDK resolvers with the Gatekeeper nonce underneath; ADMIN hidden unless `--admin`; every call on the trail under one session run id. `make mcp_check` |
+| Lifecycle + pass seams | Done (v3.8.0) — `lifecycle.transition()` (two routes + the tool) and `pipeline.forage()` (API task, scheduled script, agent); API-triggered passes now write a `run` row tagged `trigger: api` |
 | Profile & preferences | **Editable through the UI.** Identity, background, CV, search preferences, source toggles and the ATS watchlist all persist to a gitignored `data/profile.json` + `data/cv_master.md` overlay (three-layer merge: committed placeholders → legacy `preferences.local.toml` → writable overlay). `/profile` GET+PUT (both auth-gated — PII). Nothing personal is hardcoded; the tree carries placeholders only (R22) |
 | Settings UI | Tabbed: Profile · CV & background · Search & matching · Sources & watchlist · Ingestion · LLM · Telegram · Email. Each tab saves independently against the backend that owns it (`/profile` or `/config`) |
 | Test suite | 821 tests, 61 test files, zero network, injectable fakes throughout |
@@ -124,7 +124,7 @@ pipeline health, retry/backoff, docs truth-pass). Still open:
   Telegram parser never sets a company, so those postings dedup on the title line only.
 - **Heuristic scores overwrite LLM scores** each run; no score provenance is kept.
 - **Tag-driven role signal** lets a few postings score strongly on stack tags rather
-  than the title (3 of 218 strong matches, all from one dev marketplace that tags its
+  than the title (3 of 218 in the catch, all from one dev marketplace that tags its
   whole stack regardless of role). Left alone deliberately: tuning the scorer around
   one board's tagging habit would be overfitting.
 - **FakeLLM tests cannot detect fabrication.** Two R1 violations survived a full green
@@ -184,7 +184,7 @@ Planned 2026-08-17, implemented the next day. What shipped, against what was des
   under N%, everything dismissed, not seen in N days, everything matching the current
   filters), Preview, then a separate explicit Delete. The page's live filter state is
   always sent, so a purge is scoped to the view you are looking at.
-- **Spared unconditionally**: anything with an application, a tailored CV, or a triage
+- **Spared unconditionally**: anything with an application, a tailored CV, or a stash
   note. Verified on the real store — the widest possible purge selects 14,295 of 14,296
   and spares exactly the one job carrying a note.
 - **The knowledge index is dropped on any real delete**, because it is derived data that

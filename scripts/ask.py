@@ -2,7 +2,7 @@
 
 The cheapest of the three interfaces and the one to iterate on: no server, no browser,
 no bot token. It exercises the whole path — routing, degradation, the governed toolbox,
-the audit trail — so a problem found here is found before it reaches a surface where
+the trail — so a problem found here is found before it reaches a surface where
 someone is waiting.
 
 Confirmation is one mechanism with three renderers. This one prints the computed diff

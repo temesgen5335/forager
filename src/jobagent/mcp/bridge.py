@@ -169,7 +169,7 @@ def make_tool_fn(op: Operator, spec: ToolSpec, policy: ToolPolicy):
             result = op.execute(spec.name, args, ask=ask)
         except AuditUnavailable as exc:
             return CallToolResult(content=[TextContent(
-                type="text", text=f"Refused: the audit trail is unavailable ({exc}); "
+                type="text", text=f"Refused: the trail is unavailable ({exc}); "
                                   f"nothing runs without a record.")], is_error=True)
         return to_call_result(result, base_url=op.base_url)
 

@@ -2,7 +2,7 @@
 
 Every ingestion adapter normalizes its source into `JobPosting`. Matching produces
 `Match`. The apply pipeline produces `Application` + `CVVariant`. `Event` is the
-append-only audit trail. Keep these stable; adapters and tools depend on them.
+append-only trail. Keep these stable; adapters and tools depend on them.
 """
 
 from __future__ import annotations
@@ -244,7 +244,7 @@ class Application(BaseModel):
 
 
 class Event(BaseModel):
-    """Append-only audit line. Every state change and external action logs one."""
+    """Append-only trail line. Every state change and external action logs one."""
 
     model_config = ConfigDict(use_enum_values=True)
 

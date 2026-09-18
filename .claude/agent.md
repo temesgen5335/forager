@@ -40,7 +40,7 @@ so any developer or AI agent can navigate the codebase and contribute immediatel
 
 ### Data Flow
 
-1. **Ingestion adapters** fetch from sources → normalize to `JobPosting` → dedup → store.
+1. **Senses** fetch every job posting → normalize to `JobPosting` → dedup → store.
 2. **Matching engine** scores new jobs: heuristic pre-filter (always) + optional LLM rerank.
 3. **Telegram bot** pushes ranked digest; user taps to see fit-check, then apply.
 4. **Apply flow** generates assets (CV variant, cover letter, email) via LLM. HITL gate.
@@ -71,7 +71,7 @@ so any developer or AI agent can navigate the codebase and contribute immediatel
 | Frozen config is the *complement* | `CONFIG_WRITABLE` names what may change; everything else in `MANAGED_FIELDS` is frozen by construction, so a setting added next year is frozen the day it is added. A frozen *list* would default the other way and fail silently. |
 | Policy input carries no text | `SessionContext` holds actor, surface and prior grants — no transcript, no retrieved chunks, no model output (R28). An injection can make the model *request* a config rewrite; it cannot make the gatekeeper approve one, because the gatekeeper cannot read it. |
 | Confirmations bound to arguments | The nonce is server-side and tied to `sha256(args)`. On HTTP and Telegram the client sends *only* the nonce and the arguments never leave the server, which makes confirm-then-swap structurally impossible rather than merely detected. |
-| Assistant sessions share the run spine | A session closes with a `run` event carrying `kind_detail="agent_session"`, so it lands in the existing ledger with no new table — and `list_runs()` filters it out by default, because a session has no ingest counts and would render as a blank pipeline pass. |
+| Assistant sessions share the run spine | A session closes with a `run` event carrying `kind_detail="agent_session"`, so it lands in the existing trail with no new table — and `list_runs()` filters it out by default, because a session has no ingest counts and would render as a blank pass. |
 | The MCP is a renderer, not a path | Every MCP tool and resource goes through `GuardedToolBox.execute()` on one owning thread; confirmations are elicitations answered by a person and bound to `sha256(args)` underneath; ADMIN is hidden on the agent surface by default because the server cannot prove a person answered (the same call Telegram got). |
 
 ---
@@ -84,7 +84,7 @@ so any developer or AI agent can navigate the codebase and contribute immediatel
 | **pydantic v2** | Domain schemas, settings, validation. `ConfigDict` only (no class Config). |
 | **pydantic-settings** | `.env` loading with alias mapping. |
 | **FastAPI** | REST API orchestrator. `create_app()` factory for testability. |
-| **httpx** | HTTP client for ingestion adapters (async-capable, sync used). |
+| **httpx** | HTTP client for the senses (async-capable, sync used). |
 | **Telethon** | MTProto Telegram client for reading job-posting channels. |
 | **python-telegram-bot** | Bot API wrapper for the interactive bot. |
 | **openai SDK** | OpenAI-compatible backend for Groq/OpenRouter/OpenAI/Gemini. |
@@ -104,7 +104,7 @@ so any developer or AI agent can navigate the codebase and contribute immediatel
 | Tool | Purpose |
 |---|---|
 | **systemd** | Process management: bot service (always-on), ingest timer (4h), pipeline timer (daily). |
-| **GitHub Actions** | CI test runner + daily API-source digest (no Telethon needed). |
+| **GitHub Actions** | CI test runner + daily API-sense digest (no Telethon needed). |
 | **uv** | Fast Python package manager (used in vps_setup.sh). |
 
 ### Testing
@@ -131,11 +131,11 @@ src/jobagent/
 ├── llm_client.py            # MultiLLM: ordered failover chain, OpenAI-compat + Anthropic backends
 ├── secrets_store.py         # Fernet-encrypted config store, masked_view()
 ├── lifecycle.py             # transition(): the one function that moves an application (R23)
-├── pipeline.py              # run_pass(): the one ingest → match → summary seam (API, scripts, agent)
+├── pipeline.py              # forage(): the one ingest → match → summary seam (API, scripts, agent)
 ├── ingestion/
 │   ├── base.py              # BaseAdapter ABC (source, fetch, enabled)
 │   ├── util.py              # strip_html, make_client, split_slugs, get_with_retry (R21)
-│   ├── runner.py            # run_ingestion() — resilient per-adapter with RunReport
+│   ├── runner.py            # run_ingestion() — resilient per-sense with RunReport
 │   ├── registry.py          # build_adapters() — watchlist + env slugs, filtered by Sources
 │   └── adapters/            # remoteok, remotive, himalayas, greenhouse, lever, ashby, telegram, jsearch
 ├── matching/
@@ -225,12 +225,12 @@ scripts/                     # CLI entrypoints: run_bot, run_api, pipeline, appl
                              #   ask.py (assistant CLI), llm_doctor.py (routing, offline),
                              #   eval_assistant.py (eval + floors), genkey.py (Fernet key)
 deploy/                      # systemd service/timer units
-config/preferences.toml      # User profile, watchlist, source toggles
+config/preferences.toml      # User profile, watchlist, sense toggles
 ```
 
 ---
 
-## Adding a New Ingestion Adapter
+## Adding a New Sense
 
 1. Create `src/jobagent/ingestion/adapters/myboard.py`.
 2. Subclass `BaseAdapter`. Set `.source` to a new `Source` enum value.
@@ -289,7 +289,7 @@ it does, it belongs in the frozen complement, not `CONFIG_WRITABLE`.
 | `__future__ annotations` | Dep injection saw string "Request" not the class → 422 | Removed future-import from affected file |
 | Unauthenticated writes | `/apply/{id}/approve` returned **200** to an anonymous caller — it would have sent email as the user | `dependencies=auth` on every non-GET route + a route-table test that fails if one is missed |
 | Browser fetching `127.0.0.1` | `define:vars` baked the server-side URL into client JS; worked locally, broke any split deploy | `publicApiBase()` / `PUBLIC_JOBAGENT_API_URL` |
-| Retry claimed, never implemented | R8 promised backoff; adapters called `client.get` once, so a transient 429 lost the whole source | `get_with_retry` in `ingestion/util.py` |
+| Retry claimed, never implemented | R8 promised backoff; senses called `client.get` once, so a transient 429 lost that whole sense | `get_with_retry` in `ingestion/util.py` |
 | Silent pipeline death | A three-day-dead pipeline rendered identically to a healthy one | `pipeline_health()` + dashboard stale banner + digest `health_banner()` |
 | Guessed store keys | Assistant tools rendered `jobs=None ... (Noneh ago) stale=None` because key names were written from memory, not read off `Store`. A model handed `None` states it as fact or invents around it | Four renderers corrected; a test now runs every read tool against a *populated* store and fails on any `None` in model-visible text (R32) |
 | Cap reported as total | `top_matches` queried `limit=MAX_ROWS`, making the cap indistinguishable from the count — it answered "there are 12 strong matches" when there were 231 | Fetch wider than you show (`FETCH_ROWS > MAX_ROWS`), assert the gap (R32) |
@@ -304,7 +304,7 @@ it does, it belongs in the frozen complement, not `CONFIG_WRITABLE`.
 | Tiny probe said "reachable" | `llm_doctor --probe` reported a provider healthy when it could not serve a real request — "reply ok" fits where a system prompt plus 15 tool schemas does not | Probe at realistic size too; a doctor consulted when things are broken must not say they are fine |
 | 1 MB job list | `/jobs` shipped `raw` — the untouched source payload — on every row: 63% of the response, ~640 KB per dashboard page load, read by nobody | Stripped on the wire; the store still keeps it. Storage rule ≠ transport rule |
 | …then 3 MB | Removing the per-company cap and fetching 400 rows re-exposed the same defect through a different field: `description` was 95% of the list payload (136 KB of 143 KB over 20 rows) for text the list never renders. 3.0 MB → 346 KB | `description` joined `_WIRE_OMIT`; `/job/{id}` still serves it. **Widening a query re-prices every field on it** |
-| Digest cap on a browse list | The dashboard reused `ranked_matches`, whose `diversify(max_per_company=2)` is right for a bot top-10 and wrong for a triage queue. 231 strong untriaged matches rendered as 46, while the badge beside them said 231 | `max_per_company=None` from `/jobs`. The existing parity test could not see it — every job in it had a distinct company, so the cap never bound |
+| Digest cap on a browse list | The dashboard reused `ranked_matches`, whose `diversify(max_per_company=2)` is right for a bot top-10 and wrong for a stash queue. 231 strong unstashed matches rendered as 46, while the badge beside them said 231 | `max_per_company=None` from `/jobs`. The existing parity test could not see it — every job in it had a distinct company, so the cap never bound |
 | Guard placed after the thing it guards | `purge_jobs` refused an unfiltered delete by checking `if not where` — but the scored-ness predicate was appended to `where` *first*, so the list was never empty and the guard was dead code from the moment it was written. Caught by the test, not by review | Check user-supplied filters before adding JOIN-shape predicates. **A guard tested only through the path that populates its input never fires** |
 | Deletion vs derived data | The FTS knowledge index is a persistent table refreshed only by full rebuild, so deleting jobs leaves chunks the assistant still retrieves and cites — a confident answer about a row that no longer exists | Any real purge drops `agent_knowledge`; it rebuilds on next use. Ask of every new delete path: *what else derived from this?* |
 | Windowed default vs unwindowed count | `/jobs` defaulted to `within=7d`; `stats()["queue"]` has no date filter. With a stale pipeline the button promising 231 landed on "Nothing matches" | Default `within=any`, so the page and the badge answer the same question |
