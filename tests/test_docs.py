@@ -99,6 +99,17 @@ def test_documented_make_targets_exist(doc):
     assert missing == [], f"{doc} documents non-existent make targets: {missing}"
 
 
+def test_make_forage_is_an_alias_for_pipeline():
+    """`make forage` must run the same entrypoint as `make pipeline` — the dialect verb
+    is real in the CLI, not just docs. Both targets stay so muscle memory keeps working."""
+    mk = (ROOT / "Makefile").read_text()
+    assert re.search(r"^forage:", mk, re.M), "no `forage` make target"
+    assert re.search(r"^pipeline:", mk, re.M), "`pipeline` target must remain"
+    # forage resolves to pipeline's recipe (prerequisite form) or runs the same script.
+    forage_line = next(l for l in mk.splitlines() if l.startswith("forage:"))
+    assert "pipeline" in forage_line or "scripts/pipeline.py" in mk
+
+
 def test_the_test_file_count_claimed_in_context_is_accurate():
     """The file count is exact and cheap to check, so there is no excuse for drift.
 

@@ -33,7 +33,7 @@ from jobagent.ingestion.gate import ALL_SOURCES, resolve_sources
 from jobagent.lifecycle import IllegalTransition, NoSuchApplication, VALID_STATUSES, transition
 from jobagent.llm_client import AllProvidersFailed, build_llm
 from jobagent.matching import run_matching
-from jobagent.pipeline import run_pass
+from jobagent.pipeline import forage
 from jobagent.preferences import (
     Profile,
     Sources,
@@ -171,11 +171,11 @@ def _token_for(password: str, master_key: str) -> str:
 
 def _ingest_task(db_path: str, settings, profile, llm, run_id: str) -> None:
     """The background half of POST /ingest. The endpoint acquired the lock under this
-    run_id before scheduling us; `run_pass` releases it."""
+    run_id before scheduling us; `forage` releases it."""
     store = Store(db_path)
     try:
-        run_pass(store, settings, profile, llm=llm, run_id=run_id, lock_held=True,
-                 trigger="api")
+        forage(store, settings, profile, llm=llm, run_id=run_id, lock_held=True,
+               trigger="api")
     finally:
         store.close()
 
@@ -697,10 +697,10 @@ def create_app(settings=None, profile=None, llm: Any = _UNSET, cv_master: str | 
         run_id = uuid.uuid4().hex[:12]
         s = store()
         try:
-            # Same lock the pipeline takes (M5) — acquired HERE, not in the task, so
-            # the caller learns synchronously that a pass is already running.
+            # Same lock a forage takes (M5) — acquired HERE, not in the task, so
+            # the caller learns synchronously that a forage is already running.
             if not s.try_acquire_lock("pipeline", run_id):
-                raise HTTPException(409, "An ingestion pass is already running.")
+                raise HTTPException(409, "An ingestion forage is already running.")
         finally:
             s.close()
         bg.add_task(_ingest_task, settings.db_path, get_settings(), _profile(), _llm(), run_id)

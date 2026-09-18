@@ -1,13 +1,13 @@
-"""The one ingest → match → summary pass.
+"""The one ingest → match → summary forage.
 
-Three things used to run "a pass": `scripts/pipeline.py` (with a digest), the API's
+Three things used to run "a forage": `scripts/pipeline.py` (with a digest), the API's
 `_ingest_task` behind `POST /ingest` (no summary row at all), and `scripts/ingest.py`.
 Each had its own idea of the lock, the gate and the ledger. The agent's `pull_jobs` would
-have been a fourth. This module is the seam they all call, so a pass means one thing.
+have been a fourth. This module is the seam they all call, so a forage means one thing.
 
-Concurrency contract (audit M5): one pass at a time per store, guarded by the
+Concurrency contract (audit M5): one forage at a time per store, guarded by the
 `pipeline` advisory lock with a 2 h TTL. A caller that already took the lock under
-`run_id` — the API does, synchronously, so the client learns about a running pass
+`run_id` — the API does, synchronously, so the client learns about a running forage
 before the 202 — passes `lock_held=True`; the lock is released here either way.
 """
 
@@ -54,22 +54,22 @@ def _ledger(llm) -> dict | None:
     return as_dict() if callable(as_dict) else None
 
 
-def run_pass(store, settings, profile, *, llm=None, run_id: str | None = None,
-             sources: list[str] | None = None, lock_held: bool = False,
-             trigger: str = "pipeline",
-             after_match: Callable[[object, PassReport], dict | None] | None = None,
-             extra_summary: dict | None = None) -> PassReport:
+def forage(store, settings, profile, *, llm=None, run_id: str | None = None,
+           sources: list[str] | None = None, lock_held: bool = False,
+           trigger: str = "pipeline",
+           after_match: Callable[[object, PassReport], dict | None] | None = None,
+           extra_summary: dict | None = None) -> PassReport:
     """Ingest through the configured gate, score everything, write the `run` row.
 
     `after_match(store, report)` runs between matching and the summary and may return
     keys to merge into it — the scheduled script uses it to send the digest and record
-    how that went. `sources` narrows this pass to named adapters (the agent's choice);
+    how that went. `sources` narrows this forage to named adapters (the agent's choice);
     the enabled set from settings/preferences still applies underneath.
     """
     run_id = run_id or new_run_id()
     report = PassReport(run_id=run_id)
     if not lock_held and not store.try_acquire_lock(LOCK_NAME, run_id):
-        report.skipped = "another pass holds the lock (stale locks expire after 2h)"
+        report.skipped = "another forage holds the lock (stale locks expire after 2h)"
         return report
 
     started = time.monotonic()

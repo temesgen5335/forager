@@ -212,7 +212,7 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
   )}
 
   <script is:inline define:vars={{ publicUrl }}>
-    // "Pull Jobs" — the manual trigger for the pass that systemd timers and the
+    // "Pull Jobs" — the manual trigger for the forage that systemd timers and the
     // GitHub Action run on a schedule. POST /ingest is auth-gated and returns 202 with
     // a run_id immediately; the work happens in a FastAPI BackgroundTask, so progress
     // is read from the run ledger rather than from the response.
@@ -230,7 +230,7 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
       btn.textContent = "Pull Jobs";
     };
 
-    // The pass ends when matching logs its event — that is the last thing
+    // The forage ends when matching logs its event — that is the last thing
     // _ingest_task does. Ingest events land one per adapter as each finishes, so
     // they are the progress signal, not the completion one.
     const POLL_MS = 3000;
@@ -277,7 +277,7 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
     btn?.addEventListener("click", async () => {
       btn.disabled = true;
       btn.textContent = "Starting…";
-      say("Requesting a pass…");
+      say("Requesting a forage…");
       try {
         let r = await start();
 
@@ -297,14 +297,14 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
             stop("Cancelled — not signed in.", "warn");
             return;
           }
-          say("Signed in · requesting a pass…");
+          say("Signed in · requesting a forage…");
           r = await start();
         }
 
         if (r.status === 409) {
           // The endpoint takes the pipeline lock synchronously, so this is definite,
-          // not a guess — another pass (or a timer) already holds it.
-          stop("A pass is already running — try again when it finishes.", "warn");
+          // not a guess — another forage (or a timer) already holds it.
+          stop("A forage is already running — try again when it finishes.", "warn");
           return;
         }
         if (!r.ok) {

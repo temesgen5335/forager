@@ -340,7 +340,7 @@ def build_tools(*, store, settings, links, index=None, deps=None) -> list[Regist
             health, ToolPolicy("pipeline_health", Permission.READ, Confirm.NEVER)),
 
         Registration(
-            ToolSpec("recent_runs", "The most recent pipeline runs and their counts.",
+            ToolSpec("recent_runs", "The most recent forages and their counts.",
                      _schema()),
             recent_runs, ToolPolicy("recent_runs", Permission.READ, Confirm.NEVER)),
 

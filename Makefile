@@ -18,7 +18,7 @@ PY           := $(VENV)/bin/python
 API_PORT     ?= 8077
 DASH_PORT    ?= 1234
 
-.PHONY: install setup onboard demo quickstart inbox run run_backend run_bot run_dashboard check test pipeline ask upskill doctor eval_assistant docker_up docker_down mcp mcp_check
+.PHONY: install setup onboard demo quickstart inbox run run_backend run_bot run_dashboard check test pipeline forage ask upskill doctor eval_assistant docker_up docker_down mcp mcp_check
 
 install: ## backend + dashboard deps (idempotent)
 	@if command -v uv >/dev/null 2>&1; then \
@@ -112,6 +112,8 @@ run: check ## API + dashboard together; prefixed logs; one Ctrl-C tears both dow
 
 inbox: ## scan the applying mailbox for outcomes (proposes only, never applies)
 	$(PY) scripts/scan_inbox.py
+
+forage: pipeline ## a forage — one ingest → match pass (alias of `make pipeline`)
 
 pipeline: ## one ingest → match pass, no Telegram push
 	$(PY) scripts/pipeline.py --no-send

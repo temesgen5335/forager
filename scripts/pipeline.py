@@ -1,4 +1,4 @@
-"""End-to-end pipeline: ingest → match → (optionally) push digest to Telegram.
+"""End-to-end forage: ingest → match → (optionally) push digest to Telegram.
 
 This is the single command the systemd timer runs on a schedule. Each stage is
 independent and logged, so a failure in one is visible without killing the others.
@@ -20,7 +20,7 @@ from jobagent.bot.service import jobs_text  # noqa: E402
 from jobagent.config import get_settings  # noqa: E402
 from jobagent.digest import format_followups, health_banner  # noqa: E402
 from jobagent.llm_client import build_llm  # noqa: E402
-from jobagent.pipeline import new_run_id, run_pass  # noqa: E402
+from jobagent.pipeline import forage, new_run_id  # noqa: E402
 from jobagent.preferences import load_preferences  # noqa: E402
 from jobagent.store import Store  # noqa: E402
 
@@ -37,11 +37,11 @@ def main() -> None:
     store.init_schema()
 
     run_id = new_run_id()
-    print(f"[run] {run_id}")
+    print(f"[forage] {run_id}")
 
     def digest(store_, report) -> dict:
         """Stage 3, run between matching and the summary so its outcome lands on the
-        same `run` row. Carries a health banner so a degraded run announces itself."""
+        same `run` row. Carries a health banner so a degraded forage announces itself."""
         health = store_.pipeline_health()
         banner = health_banner(report.ingest, health, gap_hours=report.gap_hours_before)
         followups = format_followups(store_.applications_needing_followup())
@@ -64,10 +64,10 @@ def main() -> None:
 
     try:
         llm = build_llm(settings)
-        report = run_pass(store, settings, profile, llm=llm, run_id=run_id,
-                          trigger="pipeline", after_match=digest)
+        report = forage(store, settings, profile, llm=llm, run_id=run_id,
+                        trigger="pipeline", after_match=digest)
         if report.skipped:
-            print(f"[run] {report.skipped} — exiting")
+            print(f"[forage] {report.skipped} — exiting")
             return
         ing = report.ingest
         print(f"[ingest] {ing.total_new} new / {ing.total_fetched} fetched"
@@ -80,7 +80,7 @@ def main() -> None:
                 else "heuristic")
         print(f"[match] scored {report.match.scored} ({mode}); "
               f"LLM-reranked {report.match.llm_reranked}")
-        print(f"[run] {run_id} done in {report.duration_s}s")
+        print(f"[forage] {run_id} done in {report.duration_s}s")
     finally:
         store.close()
 

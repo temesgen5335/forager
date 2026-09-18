@@ -230,7 +230,7 @@ def build_operator_tools(*, store, settings, deps: OperatorDeps, links) -> list[
             return f"Refused: {exc}"
 
     def pull_jobs(args: dict) -> str:
-        from jobagent.pipeline import LOCK_NAME, new_run_id, run_pass
+        from jobagent.pipeline import LOCK_NAME, forage, new_run_id
         from jobagent.store import Store
 
         sources = [s.strip() for s in str(args.get("sources") or "").split(",") if s.strip()] or None
@@ -241,21 +241,21 @@ def build_operator_tools(*, store, settings, deps: OperatorDeps, links) -> list[
                 return f"Refused: unknown source(s): {unknown}. Known: {ALL_SOURCES}"
         run_id = new_run_id()
         if not store.try_acquire_lock(LOCK_NAME, run_id):
-            return "A pass is already running (locks expire after 2h). Poll recent_runs."
+            return "A forage is already running (locks expire after 2h). Poll recent_runs."
         profile = deps.profile()
 
-        def pass_() -> None:
+        def forage_() -> None:
             own = Store(deps.db_path)          # its own thread, its own Store (R15)
             try:
-                run_pass(own, settings, profile, llm=deps.llm(settings), run_id=run_id,
-                         sources=sources, lock_held=True, trigger="agent")
+                forage(own, settings, profile, llm=deps.llm(settings), run_id=run_id,
+                       sources=sources, lock_held=True, trigger="agent")
             finally:
                 own.close()
 
-        deps.spawn(pass_)
+        deps.spawn(forage_)
         return ToolOutput(
-            f"Started pass {run_id}. It runs in the background; poll run_detail with this "
-            f"id (or recent_runs) until a `run` event appears.", data={"run_id": run_id})
+            f"Started a forage {run_id}. It runs in the background; poll run_detail with "
+            f"this id (or recent_runs) until a `run` event appears.", data={"run_id": run_id})
 
     def rematch(args: dict) -> str:
         from jobagent.matching import run_matching

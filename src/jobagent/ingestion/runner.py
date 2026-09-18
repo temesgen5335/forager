@@ -58,8 +58,8 @@ def run_ingestion(adapters: list[BaseAdapter], store: Store, *, run_id: str | No
                   gate: IngestGate | None = None) -> RunReport:
     """Drive every enabled adapter once.
 
-    `run_id` is the observability spine: the same id rides every event this pass
-    emits (here, matching, and the pipeline summary), so one slow or failing run can
+    `run_id` is the observability spine: the same id rides every event this forage
+    emits (here, matching, and the summary row), so one slow or failing run can
     be reconstructed from the events table instead of guessed at from timestamps.
 
     `gate` rejects postings before they are stored. Drops are counted per reason and
