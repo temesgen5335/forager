@@ -1,6 +1,6 @@
-"""Labeled evaluation set + metrics for the heuristic matcher.
+"""Labeled evaluation set + metrics for the heuristic hunt.
 
-This is the regression net for scoring quality. The suite proves the scorer *runs*;
+This is the regression net for hunt quality. The suite proves the hunt *runs*;
 this proves it still *ranks well*: a labeled set of clearly-relevant and
 clearly-irrelevant postings — including every trap class that has actually bitten
 (substring hits, seniority mismatches, requirement-mirroring boilerplate, exclusions,
@@ -10,7 +10,7 @@ Evaluated against EVAL_PROFILE, a frozen profile that mirrors the shipped defaul
 *shape* (AI/full-stack engineer, remote must-have, weighted skills). Deliberately NOT
 the user's live preferences: editing config must never change what these metrics mean.
 
-tests/test_eval_matching.py asserts floors so a scorer change that degrades ranking
+tests/test_eval_matching.py asserts floors so a hunt-logic change that degrades ranking
 fails CI. scripts/eval_matching.py prints the full table for tuning. Floors are set
 at measured reality (minus a small epsilon), not aspiration — raising them is the
 tuning goal, and known misses are labeled in the dataset rather than hidden.
@@ -28,7 +28,7 @@ EVAL_PROFILE = Profile(
     target_roles=["AI Engineer", "Software Engineer", "Full-Stack Engineer",
                   "Frontend Engineer", "Machine Learning Engineer"],
     seniority="mid-to-senior",
-    # Opt into geo scoring: only genuinely global-remote postings are eligible, and the
+    # Opt into geo hunting: only genuinely global-remote postings are eligible, and the
     # user has explicitly allow-listed EMEA. Exercises both the scope switch and the
     # configurable include list. (Kept independent of the live user's config, per contract.)
     remote_scope="global",

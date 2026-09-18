@@ -26,7 +26,7 @@ def format_matches(matches: list[dict]) -> str:
     """Format an already-prepared (diversified, limited) list. Numbering here matches
     /apply <rank>, so callers must pass the same list they show the user."""
     if not matches:
-        return "No matches yet. Run ingestion + matching first."
+        return "No matches yet. Run ingestion + hunting first."
     lines = [f"🎯 Top {len(matches)} job matches\n"]
     for i, m in enumerate(matches, 1):
         pct = int(round(m["score"] * 100))

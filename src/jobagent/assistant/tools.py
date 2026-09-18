@@ -202,7 +202,7 @@ def build_tools(*, store, settings, links, index=None, deps=None) -> list[Regist
 
     def upskill(args: dict) -> str:
         """Recurring skill gaps across scored matches, weighted by fit. Read-only — it
-        reads gaps the matcher already recorded, spends no quota, and moves no data. The
+        reads gaps the hunt already recorded, spends no quota, and moves no data. The
         full learning plan (the one model-backed step) lives in `make upskill`, not here.
         """
         from jobagent.upskill import skill_gaps, structural_notes

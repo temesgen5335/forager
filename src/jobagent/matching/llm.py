@@ -44,5 +44,5 @@ def llm_score(job: dict, profile: Profile, llm) -> tuple[float, str, list[str]] 
         data = json.loads(raw)
         score = max(0.0, min(1.0, float(data["score"])))
         return round(score, 3), str(data.get("rationale", "")), list(data.get("gaps", []))
-    except Exception:  # noqa: BLE001 — never let scoring break the run
+    except Exception:  # noqa: BLE001 — never let hunting break the run
         return None

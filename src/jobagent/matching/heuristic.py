@@ -1,10 +1,10 @@
-"""Transparent, dependency-free heuristic scorer.
+"""Transparent, dependency-free heuristic hunt.
 
 Runs over every stored job with no API calls — gives an immediate ranked shortlist
-and acts as the cheap prefilter before (optional) LLM reranking. Scoring is
+and acts as the cheap prefilter before (optional) LLM reranking. The hunt is
 explainable: the rationale lists exactly which signals fired.
 
-Scoring is *preference-weighted* rather than a flat keyword count, because a flat
+The hunt is *preference-weighted* rather than a flat keyword count, because a flat
 count is what produces false positives at the top of the list:
 
   - Role signal distinguishes a target-role match in the TITLE from an incidental
@@ -120,7 +120,7 @@ def _seniority_gap(title: str, profile: Profile) -> str | None:
 # Whether a posting's work location is reachable is a *preference*, so it is driven
 # entirely by the profile, never baked in here (R22). The switch is `profile.remote_scope`:
 #
-#   "any"    — off (default): geo scoring does nothing, except honour geo_blocked below.
+#   "any"    — off (default): geo hunting does nothing, except honour geo_blocked below.
 #   "global" — keep only genuinely global-remote postings; ANY posting that pins itself to
 #              a specific place (a country, region, state or city — INCLUDING the candidate's
 #              own) is region-locked and demoted, capped like an exclusion.

@@ -173,7 +173,7 @@ def upskill_report_for(db_path: str, *, min_score: float = 0.5, limit: int = 12)
 
 def upskill_text(report: dict) -> str:
     """Plain-text skill-gap heatmap for Telegram. No Markdown — gap labels come from the
-    scorers and may contain characters (underscores, dots) that break legacy Markdown."""
+    hunt and may contain characters (underscores, dots) that break legacy Markdown."""
     gaps = report.get("gaps", [])
     n = report.get("n_jobs", 0)
     floor = int(round(float(report.get("min_score", 0.5)) * 100))

@@ -1,4 +1,4 @@
-"""Matching engine — score stored jobs against the profile, persist Matches.
+"""The hunt engine — score stored jobs against the profile, persist Matches.
 
 Strategy: heuristic-score every job (cheap, always), then optionally LLM-rerank
 the strongest heuristic candidates when an OpenRouter key is available.
@@ -56,8 +56,8 @@ def run_matching(
                 )
                 report.llm_reranked += 1
 
-    # Matching previously logged nothing, so the ledger showed ingestion and then
-    # silence — a matching pass that crashed or scored zero jobs was invisible.
+    # The hunt previously logged nothing, so the ledger showed ingestion and then
+    # silence — a hunt that crashed or scored zero jobs was invisible.
     store.log_event(Event(kind="match", payload={
         "scored": report.scored, "llm_reranked": report.llm_reranked,
         "used_llm": report.used_llm, "run_id": run_id,
