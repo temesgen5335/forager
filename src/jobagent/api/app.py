@@ -416,7 +416,7 @@ def create_app(settings=None, profile=None, llm: Any = _UNSET, cv_master: str | 
         )
         s = store()
         try:
-            # No per-company cap: this route feeds a browsable triage list, not a
+            # No per-company cap: this route feeds a browsable stash list, not a
             # shortlist. Capping here made the dashboard queue disagree with the
             # queue count in stats() — the number you are asked to clear must be
             # the number of rows you are given. The bot keeps its cap.
@@ -506,7 +506,7 @@ def create_app(settings=None, profile=None, llm: Any = _UNSET, cv_master: str | 
 
         Preview and apply are the SAME query — only `dry_run` differs — so what a user
         approves is what gets deleted. Anything with an application, a tailored CV, or a
-        triage note is spared whatever the filters say.
+        stash note is spared whatever the filters say.
         """
         split = lambda v: [x.strip() for x in (v or "").split(",") if x.strip()]  # noqa: E731
         run_id = uuid.uuid4().hex[:12]
@@ -538,7 +538,7 @@ def create_app(settings=None, profile=None, llm: Any = _UNSET, cv_master: str | 
             # No predicate at all would mean "the whole store". Refuse rather than
             # guess: an empty filter set is a caller bug far more often than an intent.
             raise HTTPException(400, "Refusing an unfiltered purge — narrow it with at "
-                                     "least one filter (score, date, source, or triage).")
+                                     "least one filter (score, date, source, or stash).")
         result["run_id"] = run_id
         return result
 

@@ -195,7 +195,7 @@ class Store:
 
     # Protections that are NOT filters — they hold whatever the caller asks for.
     # Jobs you acted on are your own history, not scrape data: deleting one orphans
-    # the application record and violates the FK. A triage note is the same argument
+    # the application record and violates the FK. A stash note is the same argument
     # one step down — you wrote it, so a bulk sweep does not get to discard it.
     _PURGE_SPARED = (
         "j.id NOT IN (SELECT job_id FROM applications) "
@@ -232,7 +232,7 @@ class Store:
 
         Three rows are spared unconditionally, whatever the filters say (`_PURGE_SPARED`):
         anything with an application, anything with a tailored CV, and anything carrying
-        a triage note. The first two would orphan records; the third is your own writing.
+        a stash note. The first two would orphan records; the third is your own writing.
 
         `include_unscored` reaches jobs with no `matches` row at all — ingested but never
         matched. They cannot appear in `get_matches` (it INNER JOINs), so this is the one
@@ -400,8 +400,8 @@ class Store:
             )
         ]
         self._ensure_triage()
-        # The triage queue: strong matches with no live decision. This is the number
-        # on the Jobs nav badge and the "not yet triaged" stat — the reason the
+        # The stash queue: strong matches with no live decision. This is the number
+        # on the Jobs nav badge and the "not yet stashed" stat — the reason the
         # dashboard gets opened in the morning.
         queue = self.conn.execute(
             "SELECT COUNT(*) AS n FROM matches m LEFT JOIN triage t ON t.job_id = m.job_id "
@@ -876,7 +876,7 @@ class Store:
 
     # --- inbox outcome proposals -------------------------------------------
     def _ensure_proposals(self) -> None:
-        """Older stores predate this table; created on demand like the triage one."""
+        """Older stores predate this table; created on demand like the stash one."""
         self.conn.executescript("""
             CREATE TABLE IF NOT EXISTS outcome_proposals (
                 id TEXT PRIMARY KEY,
@@ -956,7 +956,7 @@ class Store:
     _KEEP = object()   # sentinel: "field not provided — keep what's stored"
 
     def set_triage(self, job_id: str, *, state=_KEEP, snoozed_until=_KEEP, note=_KEEP) -> dict:
-        """Upsert one job's triage row. Omitted fields keep their stored value, so
+        """Upsert one job's stash row. Omitted fields keep their stored value, so
         noting a snoozed job keeps the snooze and re-snoozing keeps the note. Pass
         None explicitly to clear a field."""
         self._ensure_triage()

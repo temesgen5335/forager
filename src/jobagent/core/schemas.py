@@ -163,7 +163,7 @@ class JobPosting(BaseModel):
         """Stable identity across sources: normalized company+title+location.
 
         This is the PRIMARY KEY and must never change meaning: every stored job, every
-        `applications.job_id`, and every triage row is keyed on it. Redefining it would
+        `applications.job_id`, and every stash row is keyed on it. Redefining it would
         re-id the whole store and orphan the operator's own history — a MAJOR by this
         project's versioning policy. Cross-board grouping goes in `cluster_key` instead.
         """

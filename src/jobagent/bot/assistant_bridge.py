@@ -13,7 +13,7 @@ the pipeline's configuration. `Surface.CHAT` is outside `admin_surfaces`, so the
 is structural rather than a rule this module remembers to apply. Chat gets the computed
 diff read-only and a pointer to the dashboard.
 
-Ordinary actions (triage) *are* confirmable here, through the inline-button pattern the
+Ordinary actions (stash) *are* confirmable here, through the inline-button pattern the
 bot already uses. The button carries only a nonce; the arguments stay in `bot_data`, so
 there is nothing in the callback payload to tamper with — the same property the HTTP
 surface gets for the same reason.

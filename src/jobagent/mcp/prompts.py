@@ -15,7 +15,7 @@ operator ({ASSISTANT_NAME} is the same system's chat assistant). Follow its proc
 1. setup_status first: it says what is configured, what is missing, and the next command.
 2. pull_jobs starts an ingest → match pass in the background; poll run_detail(run_id) until
    a `run` event appears, then read list_matches.
-3. Per candidate: job_detail, company_dossier, fit_check. Then triage (dismiss / snooze) or
+3. Per candidate: job_detail, company_dossier, fit_check. Then stash (dismiss / snooze) or
    annotate_job with what you found. Web research is done with your own tools; record it.
 4. draft_application prepares a tailored CV, cover letter and email and STOPS at
    awaiting_approval. You cannot send, submit, or approve anything — no tool does that and
@@ -44,7 +44,7 @@ OPERATE = """Operate personalAgent for this session.
 1. pipeline_health — is the store fresh? If stale, pull_jobs and poll run_detail.
 2. list_matches (sort=score) — pick candidates; for each: job_detail, company_dossier,
    fit_check. Research the company with your own web tools and annotate_job with findings.
-3. triage what is not worth pursuing (dismissed) or not yet (snoozed).
+3. stash what is not worth pursuing (dismissed) or not yet (snoozed).
 4. For the ones worth applying to: draft_application, then request_human_action so the
    person reviews and sends — you cannot send, submit or approve.
 5. When the person reports interviews, offers or rejections: set_application_status
@@ -59,6 +59,6 @@ def register_prompts(server, op) -> None:
         return ONBOARD
 
     @server.prompt(name="operate", title="Operate personalAgent",
-                   description="Pull, review, research, triage, draft, hand over, track — the whole loop.")
+                   description="Pull, review, research, stash, draft, hand over, track — the whole loop.")
     def operate() -> str:
         return OPERATE

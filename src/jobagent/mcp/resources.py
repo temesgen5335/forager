@@ -52,7 +52,7 @@ def register_resources(server, op: Operator) -> None:
         return _read(op, "lifecycle", {}, as_json=True)
 
     @server.resource("personalagent://matches", name="matches", title="Ranked matches",
-                     description="The top untriaged matches, default filters.",
+                     description="The top unstashed matches, default filters.",
                      mime_type="application/json")
     def matches() -> str:
         return _read(op, "list_matches", {}, as_json=True)

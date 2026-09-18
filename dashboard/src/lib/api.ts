@@ -66,7 +66,7 @@ export interface Stats {
   totalJobs: number;
   matches: number;
   strong: number;
-  queue: number;              // strong ∧ untriaged — the morning number
+  queue: number;              // strong ∧ unstashed — the morning number
   totalApps: number;
   lastIngest: string | null;
   bySource: { source: string; n: number }[];
@@ -102,7 +102,7 @@ export interface MatchRow {
   score: number;
   rationale: string;
   // Why this might not fit: level mismatch, missing must-have, exclusion, not remote.
-  // Surfaced in the list so triage does not need a click-through.
+  // Surfaced in the list so a stash decision does not need a click-through.
   gaps: string[];
   // Parsed from salary_text at ingest. null means "could not tell", never zero.
   salary_min: number | null;
@@ -114,7 +114,7 @@ export interface MatchRow {
   // Which scorer produced `score`; llm_score survives a heuristic re-run.
   score_source?: string;
   llm_score?: number | null;
-  // Per-job triage decision, joined by the store. null = live.
+  // Per-job stash decision, joined by the store. null = live.
   triage_state: "dismissed" | "snoozed" | null;
   triage_snoozed_until: string | null;
   triage_note: string | null;

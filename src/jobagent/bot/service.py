@@ -97,7 +97,7 @@ def ranked_matches(store: Store, n: int = 10, flt: MatchFilter | None = None, of
     `max_per_company=None` disables the cap. A *shortlist* wants it — one employer with
     forty openings must not fill a top-10. A *browsable list* does not: the cap silently
     drops jobs you still have to decide on, so the dashboard's count would disagree with
-    the queue count in stats(). Measured on a real store: 231 strong untriaged matches
+    the queue count in stats(). Measured on a real store: 231 strong unstashed matches
     collapsed to 46 under the cap."""
     flt = flt or MatchFilter()
     pool = store.get_matches(

@@ -55,7 +55,7 @@ const isActive = (href: string) =>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · Job Agent</title>
     <!--
-      Shared client-side auth for dashboard actions (triage, fit check, status edits,
+      Shared client-side auth for dashboard actions (stash, fit check, status edits,
       follow-up drafts). Every API write needs the bearer token minted by the Settings
       login. `is:inline` keeps this un-bundled so it runs before page scripts.
     -->
@@ -106,7 +106,7 @@ const isActive = (href: string) =>
 
     <!--
       Sign-in prompt for any page whose write hit a 401/403. Lives here rather than on
-      a page because every write surface (pull jobs, triage, fit check, status edits,
+      a page because every write surface (pull jobs, stash, fit check, status edits,
       follow-up drafts) hits the same wall, and because the token it mints is the same
       `jobagent_token` the Settings page writes — one session, not two. Settings keeps
       its own inline gate: there the lock IS the page, here it is an interruption.

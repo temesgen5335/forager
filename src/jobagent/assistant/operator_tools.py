@@ -385,7 +385,7 @@ def build_operator_tools(*, store, settings, deps: OperatorDeps, links) -> list[
           pull_jobs, act_costly("pull_jobs", "Fetch and score new postings"), AGENT_SURFACES),
         R(ToolSpec("rematch", "Re-score every stored posting against the current profile.",
                    _schema()), rematch, act_costly("rematch", "Re-score stored postings"), AGENT_SURFACES),
-        R(ToolSpec("annotate_job", "Attach a note to a posting without changing its triage state.",
+        R(ToolSpec("annotate_job", "Attach a note to a posting without changing its stash state.",
                    _schema(job_id={**ident, "description": "posting id"},
                            note={**ident, "description": "the note"})),
           annotate_job, act("annotate_job", "Save a note on a posting"), AGENT_SURFACES),

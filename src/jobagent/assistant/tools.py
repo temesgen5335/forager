@@ -250,7 +250,7 @@ def build_tools(*, store, settings, links, index=None, deps=None) -> list[Regist
             return "No posting with that id; nothing was changed."
         if state == "active":
             store.clear_triage(job_id)
-            return f"Cleared triage on {job_id[:8]}."
+            return f"Cleared stash on {job_id[:8]}."
         store.set_triage(job_id, state=state, note=args.get("note") or None)
         return f"Set {job_id[:8]} to {state}."
 
@@ -350,7 +350,7 @@ def build_tools(*, store, settings, links, index=None, deps=None) -> list[Regist
             run_detail, ToolPolicy("run_detail", Permission.READ, Confirm.NEVER)),
 
         Registration(
-            ToolSpec("top_matches", "Highest-scoring postings not yet triaged.",
+            ToolSpec("top_matches", "Highest-scoring postings not yet stashed.",
                      _schema(min_score={"type": "number",
                                         "description": "minimum score, 0-1 (default 0.6)"})),
             top_matches, ToolPolicy("top_matches", Permission.READ, Confirm.NEVER)),
@@ -397,7 +397,7 @@ def build_tools(*, store, settings, links, index=None, deps=None) -> list[Regist
                      "Dismiss, snooze, or reactivate a posting in the review queue.",
                      _schema(job_id={**ident, "description": "posting id"},
                              state={**ident, "enum": ["dismissed", "snoozed", "active"],
-                                    "description": "new triage state"},
+                                    "description": "new stash state"},
                              note={"type": "string", "description": "optional note"})),
             triage, ToolPolicy("triage", Permission.ACT, Confirm.SESSION,
                                describes="Change which postings appear in your queue")),
