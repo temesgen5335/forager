@@ -1,8 +1,8 @@
 """Ingestion runner — drives the senses into the store.
 
-For each enabled sense: fetch postings, upsert (dedup by hash), count new vs.
-re-seen, and log one `ingest` event per sense run. Resilient: a failing sense
-logs an `error` event and the run continues with the rest.
+For each enabled sense: fetch postings, upsert (scavenge by hash), count new vs.
+re-seen, and log one `ingest` event per sense run. A failing sense doesn't stop
+the scavenge: it logs an `error` event and the run continues with the rest.
 """
 
 from __future__ import annotations

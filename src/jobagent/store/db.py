@@ -65,7 +65,8 @@ class Store:
 
     # --- jobs -------------------------------------------------------------
     def upsert_job(self, job: JobPosting) -> str:
-        """Insert or refresh a job by dedup_hash. Returns the job id.
+        """Insert or refresh a job by dedup_hash — the scavenge collapses re-sightings
+        of the same posting into one row. Returns the job id.
 
         last_seen_at always bumps; first_seen_at is preserved across re-sightings
         so we can tell genuinely new postings from re-scrapes.
@@ -116,7 +117,8 @@ class Store:
         return job_id
 
     def is_new_job(self, job: JobPosting) -> bool:
-        """True if this dedup_hash has never been seen before."""
+        """True if this dedup_hash has nothing to scavenge yet — the posting is
+        genuinely new."""
         row = self.conn.execute(
             "SELECT 1 FROM jobs WHERE id=?", (job.dedup_hash(),)
         ).fetchone()
