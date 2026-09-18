@@ -1,5 +1,5 @@
-"""Shared adapter helpers — HTML stripping, client construction, slug parsing,
-and the bounded-retry GET every adapter uses to satisfy R8 (back off, don't hammer).
+"""Shared sense helpers — HTML stripping, client construction, slug parsing,
+and the bounded-retry GET every sense uses to satisfy R8 (back off, don't hammer).
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ _RETRY_AFTER_CAP = 60.0
 
 
 def _backoff(attempt: int, base: float, cap: float, rng) -> float:
-    """Full jitter: uniform in [0, ceiling]. Spreads retries so several adapters
+    """Full jitter: uniform in [0, ceiling]. Spreads retries so several senses
     failing at the same moment don't come back in lockstep."""
     return min(cap, base * (2**attempt)) * rng()
 
@@ -70,11 +70,11 @@ def get_with_retry(
 
     Returns a 2xx response, or raises the last error once attempts are exhausted —
     so callers keep their existing `except (httpx.HTTPError, ValueError)` handling and
-    a dead source still degrades to "skip this adapter" rather than killing the run.
+    a dead sense still degrades to "skip this sense" rather than killing the run.
 
-    `params` and `headers` exist because an authenticated source (JSearch sends a
+    `params` and `headers` exist because an authenticated sense (JSearch sends a
     RapidAPI key) still has to come through here — R21 forbids calling `client.get`
-    directly, and an adapter that needed headers would otherwise have no legitimate
+    directly, and a sense that needed headers would otherwise have no legitimate
     route and would quietly lose its retry/backoff.
 
     `sleep` and `rng` are injectable so tests are instant and deterministic.

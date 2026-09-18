@@ -1,4 +1,4 @@
-"""JSearch adapter (RapidAPI) — LinkedIn, Indeed, Glassdoor, ZipRecruiter and others
+"""JSearch sense (RapidAPI) — LinkedIn, Indeed, Glassdoor, ZipRecruiter and others
 behind one endpoint.
 
 **Why an aggregator API rather than a scraper.** These three boards are where most
@@ -10,10 +10,10 @@ anti-bot problem on the side of the party who signed up for it.
 The trade worth knowing: aggregator results are lower quality than a direct ATS feed —
 titles are rewritten, companies are inconsistent, and the same role arrives from several
 underlying boards. That last one is why `cluster_key` exists; without it, turning this
-adapter on visibly triples the queue with duplicates.
+sense on visibly triples the queue with duplicates.
 
 Config: `JSEARCH_API_KEY` (a RapidAPI key) plus `[sources] aggregator = true`.
-Queries come from the profile's `target_roles`, so the adapter searches for what the
+Queries come from the profile's `target_roles`, so the sense searches for what the
 operator is actually looking for rather than a hardcoded list.
 """
 
@@ -126,7 +126,7 @@ def _salary_text(item: dict) -> str | None:
     """Rebuild a human-readable salary string from JSearch's separate fields.
 
     The parser in `jobagent.salary` reads text, so composing one here keeps a single
-    code path for every source rather than a special case per adapter.
+    code path for every sense rather than a special case per sense.
     """
     low, high = item.get("job_min_salary"), item.get("job_max_salary")
     if low is None and high is None:

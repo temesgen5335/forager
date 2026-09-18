@@ -123,7 +123,7 @@ def test_banner_names_failed_sources():
         AdapterResult(source="lever", error="ConnectTimeout: dead"),
     )
     out = health_banner(r, {"sources": []})
-    assert "1 source(s) failed" in out and "lever" in out and "ConnectTimeout" in out
+    assert "1 sense(s) failed" in out and "lever" in out and "ConnectTimeout" in out
     assert out.endswith("\n\n")                          # separates from the digest body
 
 

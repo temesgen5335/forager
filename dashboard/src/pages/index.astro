@@ -30,7 +30,7 @@ const overnightLine = stats
   : "";
 
 let healthTitle = "Pipeline healthy";
-let healthBody = `All ${sources.length || "—"} sources answered on the last run.`;
+let healthBody = `All ${sources.length || "—"} senses answered on the last run.`;
 if (health?.is_stale) {
   healthTitle = "Pipeline looks stale";
   healthBody = health.last_ingest
@@ -38,7 +38,7 @@ if (health?.is_stale) {
     : "No ingestion has ever completed on this store.";
 } else if (staleSources.length > 0) {
   healthTitle = `${staleSources.map((s) => s.source).join(", ")} ${staleSources.length === 1 ? "has" : "have"} gone quiet`;
-  healthBody = `No data for 48h+ from ${staleSources.length === 1 ? "this source" : "these sources"} — the usual cause is an expired credential or a changed board API. Everything below is missing ${staleSources.length === 1 ? "it" : "them"}, including your match counts.`;
+  healthBody = `No data for 48h+ from ${staleSources.length === 1 ? "this sense" : "these senses"} — the usual cause is an expired credential or a changed board API. Everything below is missing ${staleSources.length === 1 ? "it" : "them"}, including your match counts.`;
 } else if ((health?.recent_errors ?? 0) > 0 && health?.last_error) {
   healthTitle = `${health.recent_errors} error(s) in the last 24h`;
   healthBody = `Most recent — ${health.last_error.source ?? "unknown"}: ${health.last_error.error ?? ""}`;
@@ -231,7 +231,7 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
     };
 
     // The forage ends when matching logs its event — that is the last thing
-    // _ingest_task does. Ingest events land one per adapter as each finishes, so
+    // _ingest_task does. Ingest events land one per sense as each finishes, so
     // they are the progress signal, not the completion one.
     const POLL_MS = 3000;
     const GIVE_UP_MS = 10 * 60 * 1000;
@@ -240,7 +240,7 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
       let events = [];
       try {
         const r = await fetch(`${publicUrl}/runs/${encodeURIComponent(runId)}`);
-        // 404 just means no event has landed yet — the first source is still fetching.
+        // 404 just means no event has landed yet — the first sense is still fetching.
         if (r.ok) events = (await r.json()).events || [];
       } catch {
         /* transient — the next tick retries */
@@ -261,9 +261,9 @@ const pct = (r: number | undefined) => `${Math.round((r ?? 0) * 100)}%`;
       const fetched = ingested.reduce((n, e) => n + (e.fetched || 0), 0);
       const fresh = ingested.reduce((n, e) => n + (e.new || 0), 0);
       const parts = [];
-      if (ingested.length) parts.push(`${ingested.length} source(s) · ${fetched} fetched · ${fresh} new`);
+      if (ingested.length) parts.push(`${ingested.length} sense(s) · ${fetched} fetched · ${fresh} new`);
       if (failed.length) parts.push(`${failed.length} failed`);
-      say(parts.length ? `Running — ${parts.join(" · ")}` : "Running — contacting sources…");
+      say(parts.length ? `Running — ${parts.join(" · ")}` : "Running — contacting senses…");
 
       if (Date.now() - startedAt > GIVE_UP_MS) {
         stop("Still running after 10 min — reload the page to see where it got to.", "warn");

@@ -1,4 +1,4 @@
-"""Remotive adapter — free public JSON (https://remotive.com/api/remote-jobs).
+"""Remotive sense — free public JSON (https://remotive.com/api/remote-jobs).
 
 Response shape: {"job-count": N, "jobs": [ {...}, ... ]}. All jobs are remote.
 Note: Remotive's API is for personal/redistribution-limited use; we only filter

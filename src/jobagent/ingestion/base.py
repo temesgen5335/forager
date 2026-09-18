@@ -1,6 +1,6 @@
-"""Base ingestion adapter. Every source (RemoteOK, Telegram, aggregator, ...)
+"""Base sense. Every sense (RemoteOK, Telegram, aggregator, ...)
 subclasses this and yields normalized JobPosting objects. Nothing downstream
-knows or cares which source a job came from."""
+knows or cares which sense a job came from."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from jobagent.core.schemas import JobPosting, Source
 
 
 class BaseAdapter(abc.ABC):
-    """Contract for a job source.
+    """Contract for a job sense.
 
     Implementations should be resilient: a single bad posting must not abort the
     whole run. Network/auth config comes from jobagent.config.get_settings().
@@ -26,5 +26,5 @@ class BaseAdapter(abc.ABC):
 
     @property
     def enabled(self) -> bool:
-        """Override to gate an adapter on required credentials being present."""
+        """Override to gate a sense on required credentials being present."""
         return True

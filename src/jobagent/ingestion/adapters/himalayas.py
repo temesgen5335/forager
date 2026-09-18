@@ -1,6 +1,6 @@
-"""Himalayas adapter — free public JSON (https://himalayas.app/jobs/api).
+"""Himalayas sense — free public JSON (https://himalayas.app/jobs/api).
 
-Why this source: it is remote-first AND ships an explicit `locationRestrictions`
+Why this sense: it is remote-first AND ships an explicit `locationRestrictions`
 list per posting ("Worldwide", "United States", "Europe", …). That maps straight
 onto the `location` field the geo-eligibility scorer reads, so a genuinely global
 role and a US-only "remote" role arrive already distinguishable — which is exactly

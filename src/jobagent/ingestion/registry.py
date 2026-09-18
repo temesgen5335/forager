@@ -1,4 +1,4 @@
-"""Builds the configured set of ingestion adapters from settings + watchlist.
+"""Builds the configured set of senses from settings + watchlist.
 Shared by the ingest CLI and the deployment pipeline so they never drift."""
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ def build_adapters(settings) -> list[BaseAdapter]:
     """Company watchlist comes from config/preferences.toml; env vars supplement
     slugs/channels.
 
-    Which sources run is resolved by `gate.resolve_sources`: the dashboard-editable
-    `ingest_sources` wins when set, otherwise `[sources]` in preferences.toml. A source
+    Which senses run is resolved by `gate.resolve_sources`: the dashboard-editable
+    `ingest_sources` wins when set, otherwise `[sources]` in preferences.toml. A sense
     excluded there is dropped here; included ones still self-gate on creds/slugs via
     their own `enabled` property, so selecting Telegram without credentials is a no-op
     rather than an error."""

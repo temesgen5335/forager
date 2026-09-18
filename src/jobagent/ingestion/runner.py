@@ -1,7 +1,7 @@
-"""Ingestion runner — drives adapters into the store.
+"""Ingestion runner — drives the senses into the store.
 
-For each enabled adapter: fetch postings, upsert (dedup by hash), count new vs.
-re-seen, and log one `ingest` event per adapter run. Resilient: a failing adapter
+For each enabled sense: fetch postings, upsert (dedup by hash), count new vs.
+re-seen, and log one `ingest` event per sense run. Resilient: a failing sense
 logs an `error` event and the run continues with the rest.
 """
 
@@ -18,7 +18,7 @@ from jobagent.store import Store
 @dataclass
 class AdapterResult:
     source: str
-    fetched: int = 0          # postings the adapter yielded
+    fetched: int = 0          # postings the sense yielded
     new: int = 0              # stored and not seen before
     dropped: int = 0          # rejected by the ingest gate, never stored
     drops: dict[str, int] = field(default_factory=dict)   # reason -> count
@@ -56,15 +56,15 @@ class RunReport:
 
 def run_ingestion(adapters: list[BaseAdapter], store: Store, *, run_id: str | None = None,
                   gate: IngestGate | None = None) -> RunReport:
-    """Drive every enabled adapter once.
+    """Drive every enabled sense once.
 
     `run_id` is the observability spine: the same id rides every event this forage
     emits (here, matching, and the summary row), so one slow or failing run can
     be reconstructed from the events table instead of guessed at from timestamps.
 
     `gate` rejects postings before they are stored. Drops are counted per reason and
-    logged, because a gate that silently ate a source is indistinguishable from a
-    source that stopped answering.
+    logged, because a gate that silently ate a sense is indistinguishable from a
+    sense that stopped answering.
     """
     report = RunReport()
     for adapter in adapters:
@@ -89,7 +89,7 @@ def run_ingestion(adapters: list[BaseAdapter], store: Store, *, run_id: str | No
                 "kept": result.kept, "dropped": result.dropped, "drops": result.drops,
                 "run_id": run_id,
             }))
-        except Exception as exc:  # noqa: BLE001 — one bad source must not kill the run
+        except Exception as exc:  # noqa: BLE001 — one bad sense must not kill the run
             result.error = f"{type(exc).__name__}: {exc}"
             store.log_event(Event(kind="error", payload={
                 "source": src, "error": result.error, "run_id": run_id,

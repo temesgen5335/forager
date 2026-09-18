@@ -74,12 +74,12 @@ def health_banner(report, health: dict, *, gap_hours: float | None = None,
         )
     failed = [r for r in report.results if r.error]
     if failed:
-        lines.append(f"⚠️ {len(failed)} source(s) failed this run:")
+        lines.append(f"⚠️ {len(failed)} sense(s) failed this run:")
         lines += [f"  • {r.source}: {r.error}" for r in failed]
     if report.total_fetched == 0:
-        lines.append("⚠️ No postings fetched from any source — check credentials/network.")
+        lines.append("⚠️ No postings fetched from any sense — check credentials/network.")
     elif getattr(report, "total_dropped", 0) and report.total_dropped == report.total_fetched:
-        # Sources answered but the gate rejected every posting — almost always a
+        # Senses answered but the gate rejected every posting — almost always a
         # mis-set filter, and indistinguishable from a dead pipeline without this.
         lines.append(f"⚠️ The ingest gate filtered out all {report.total_fetched} fetched "
                      f"postings ({report.drops_by_reason}) — check your ingest filters.")

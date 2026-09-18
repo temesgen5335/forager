@@ -16,7 +16,7 @@ HELP_TEXT = (
     "/menu — interactive menu (filters, jobs, apply)\n"
     "/jobs [N] — top N job matches (default 10)\n"
     "/apply <rank> — draft a tailored application for job #rank\n"
-    "/status — pipeline stats (jobs, sources, matches)\n"
+    "/status — pipeline stats (jobs, senses, matches)\n"
     "/upskill [fit] — recurring skill gaps across your matches (default fit ≥ 0.5)\n"
     f"/ask <question> — ask {ASSISTANT_NAME} about your pipeline "
     f"(or just say “{ASSISTANT_NAME}, …”)\n"
@@ -205,5 +205,5 @@ def status_text(stats: dict) -> str:
         f"Scored matches: {stats.get('matches', 0)} "
         f"(strong ≥70%: {stats.get('strong_matches', 0)})\n"
         f"Last ingest: {last}\n"
-        f"By source:\n{src_lines}"
+        f"By sense:\n{src_lines}"
     )

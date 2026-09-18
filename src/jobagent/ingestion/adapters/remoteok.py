@@ -1,4 +1,4 @@
-"""RemoteOK adapter — free public JSON feed (https://remoteok.com/api).
+"""RemoteOK sense — free public JSON feed (https://remoteok.com/api).
 
 The feed is a JSON array whose FIRST element is a legal/metadata notice, not a job;
 we skip it. RemoteOK blocks requests without a User-Agent, so we always send one.

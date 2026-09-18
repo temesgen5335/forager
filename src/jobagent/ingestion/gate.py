@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 # The selectable set for the dashboard, in display order. `aggregator` is listed because
-# the toggle exists, but it has no adapter yet — see docs/ARCHITECTURE.md.
+# the toggle exists, but it has no sense yet — see docs/ARCHITECTURE.md.
 ALL_SOURCES = ["remoteok", "remotive", "himalayas", "greenhouse", "lever", "ashby", "telegram", "aggregator"]
 
 # Terms that mean "remote" as a structured fact rather than a place name.
@@ -83,7 +83,7 @@ class IngestGate:
         """
         if self.max_age_days and job.posted_at is not None:
             # No posted_at → keep. Telegram posts and some boards omit it, and dropping
-            # unknown-age jobs would quietly delete an entire source's output.
+            # unknown-age jobs would quietly delete an entire sense's output.
             cutoff = datetime.now(timezone.utc) - timedelta(days=self.max_age_days)
             posted = job.posted_at
             if posted.tzinfo is None:
@@ -113,7 +113,7 @@ class IngestGate:
 
 
 def resolve_sources(settings, toml_sources) -> set[str]:
-    """Which source slugs may run this pass.
+    """Which sense slugs may run this pass.
 
     `ingest_sources` (Settings/dashboard) wins when set, because it is the surface the
     user just edited; an empty value falls back to `[sources]` in preferences.toml so
