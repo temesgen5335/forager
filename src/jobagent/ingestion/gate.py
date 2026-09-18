@@ -11,7 +11,7 @@ it is irreversible, unlike scoring. So the gate is deliberately limited to cheap
 facts the user will not change their mind about (age, location, hard exclusions) and
 never to fit judgment (skills, seniority, requirements): the scorer already handles
 those, reversibly, for free. Every drop is counted per reason and surfaced in the ingest
-event and the run summary, so a mis-set gate shows up as "481 filtered" rather than as a
+event and the trail, so a mis-set gate shows up as "481 filtered" rather than as a
 mysteriously empty queue.
 """
 
@@ -79,7 +79,7 @@ class IngestGate:
     def reject(self, job) -> str | None:
         """Return a short drop reason, or None to keep the posting.
 
-        The reason is the label counted in the ledger, so keep the set small and stable.
+        The reason is the label counted in the trail, so keep the set small and stable.
         """
         if self.max_age_days and job.posted_at is not None:
             # No posted_at → keep. Telegram posts and some boards omit it, and dropping

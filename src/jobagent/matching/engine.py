@@ -56,7 +56,7 @@ def run_matching(
                 )
                 report.llm_reranked += 1
 
-    # The hunt previously logged nothing, so the ledger showed ingestion and then
+    # The hunt previously logged nothing, so the trail showed ingestion and then
     # silence — a hunt that crashed or scored zero jobs was invisible.
     store.log_event(Event(kind="match", payload={
         "scored": report.scored, "llm_reranked": report.llm_reranked,

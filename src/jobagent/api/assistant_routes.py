@@ -179,7 +179,7 @@ def register(app, *, store_factory, settings_factory, auth, read_auth=None, limi
 
     @app.get("/assistant/sessions", dependencies=(read_auth or []))
     def sessions(limit: int = 20):
-        """Past assistant sessions, kept out of the pipeline run ledger."""
+        """Past assistant sessions, kept out of the pipeline trail."""
         store = store_factory()
         try:
             return {"sessions": store.list_runs(limit, kind_detail="agent_session")}

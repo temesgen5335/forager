@@ -2,7 +2,7 @@
 
 Three things used to run "a forage": `scripts/pipeline.py` (with a digest), the API's
 `_ingest_task` behind `POST /ingest` (no summary row at all), and `scripts/ingest.py`.
-Each had its own idea of the lock, the gate and the ledger. The agent's `pull_jobs` would
+Each had its own idea of the lock, the gate and the trail. The agent's `pull_jobs` would
 have been a fourth. This module is the seam they all call, so a forage means one thing.
 
 Concurrency contract (audit M5): one forage at a time per store, guarded by the

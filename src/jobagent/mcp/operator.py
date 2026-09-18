@@ -8,7 +8,7 @@ discipline. `pull_jobs` is the one thing that leaves this thread, and it opens i
 Store (Task 9).
 
 Session = process: one Gatekeeper (so `Confirm.SESSION` means "once per coding-agent
-session"), one Auditor (one run id on the ledger), one Store connection. `start()`
+session"), one Auditor (one run id on the trail), one Store connection. `start()`
 writes an opening note so a session killed before `close()` is still reconstructable
 from `events_for_run`; `close()` writes the `run` row that `list_runs(kind_detail=
 "agent_session")` lists.

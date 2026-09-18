@@ -58,7 +58,7 @@ def main() -> None:
               f"(-{out['jobs']}); matches -{out['matches']}, triage -{out['triage']}")
         if out["kept_acted_on"]:
             print(f"[prune] kept {out['kept_acted_on']} stale job(s) you applied to")
-        # Retention is a real state change; the ledger should show it.
+        # Retention is a real state change; the trail should show it.
         store.log_event(Event(kind="prune", payload={**out, "older_than_days": args.older_than}))
     finally:
         store.close()

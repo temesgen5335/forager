@@ -1001,7 +1001,7 @@ class Store:
     # --- advisory locks ----------------------------------------------------
     # Guards against two pipeline passes interleaving on one store (audit M5):
     # a timer firing while a manual `make pipeline` or POST /ingest is mid-run
-    # would double-fetch sources and interleave ledger events. SQLite's PRIMARY
+    # would double-fetch sources and interleave trail events. SQLite's PRIMARY
     # KEY makes acquisition atomic; the TTL means a crashed holder expires
     # instead of wedging the pipeline until someone notices.
 
@@ -1032,15 +1032,15 @@ class Store:
         self.conn.commit()
 
     def list_runs(self, limit: int = 20, *, kind_detail: str | None = None) -> list[dict]:
-        """The run ledger: one row per pipeline pass, newest first.
+        """The trail: one row per pipeline pass, newest first.
 
         Reads the `run` summary events the pipeline logs at the end of each pass.
         This is the answer to "what has the agent actually done lately" — counts per
         stage, digest outcome, duration — without grepping journald.
 
-        Assistant sessions also close with a `run` event, so they share the audit spine
+        Assistant sessions also close with a `run` event, so they share the trail
         and need no new table. They are **excluded here by default**: they carry no
-        ingest or match counts, so mixing them in puts blank rows in the ledger and
+        ingest or match counts, so mixing them in puts blank rows in the trail and
         anything rendering counts prints None. Pass `kind_detail="agent_session"` to
         list those instead.
         """
