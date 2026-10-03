@@ -12,9 +12,15 @@ scoped in [docs/VERSIONING.md](docs/VERSIONING.md) — which is worth reading, b
 Planned work is tracked in [docs/ROADMAP.md](docs/ROADMAP.md), grouped by the release
 that will carry it.
 
-## [3.8.0] — 2026-09-14
+## [3.8.0] — 2026-10-03
 
 ### Changed
+- **Rebranded to Forager / Baer.** The system is **Forager**; the assistant is **Baer**. The
+  README leads with the keyless quickstart, the geo/eligibility wedge, and the
+  senses/forage/hunt/scavenge/den/trail/stash dialect — and that dialect now runs through the
+  code itself (logs, docstrings, UI / Telegram / CLI copy, and `make forage`). The rename is
+  deliberately contract-safe: no API route, DB table/column, config key, or module path
+  changed, so existing stores, `.env` files, and integrations keep working.
 - **The pipeline's LLM router is now the reusable agentkit service — no more duplicate.**
   `jobagent/llm_client.py` was a second multi-provider router (its own registry, failover,
   usage ledger, fan-out) parallel to `agentkit.llm`, which the assistant already used.
@@ -27,6 +33,23 @@ that will carry it.
   deleted.
 
 ### Added
+- **Config-driven schedule cadence** (`src/jobagent/scheduling.py`, `scripts/install_services.sh`,
+  `.env`) — the autonomous systemd timers' cadence is now set in `.env`
+  (`INGEST_EVERY_HOURS`, `DIGEST_AT`, `INGEST_JITTER_SEC`) and rendered into the unit files by
+  the installer through a pure `OnCalendar` translator (`python -m jobagent.scheduling`), instead
+  of hand-editing systemd calendar syntax. Defaults reproduce the prior every-4h ingest / daily
+  07:00 digest. `make forage` is added as an alias of `make pipeline`. (GitHub Actions keeps its
+  cron literal — the platform forbids variables in `on.schedule`.)
+- **Keyless first run + guided onboarding** — `make quickstart` writes a ready `.env` (generating
+  `DASHBOARD_PASSWORD` / `JOBAGENT_MASTER_KEY` without clobbering existing ones) and seeds a
+  demo den so a fresh clone shows ranked matches with zero credentials; `make onboard` is a
+  guided (and scriptable `--config` / `--example-config`) setup for profile, sources, LLM, email,
+  and Telegram. Going live is `POST /demo/clear` + `clear_demo()`, which removes the demo rows and
+  their dependents while sparing real data; `store.stats()` gains `demo` / `first_run` flags.
+- **Repo / CI hardening** — the test workflow runs the suite on Python 3.11 / 3.12 / 3.13 with the
+  full extras (so the tailored-CV PDF-render path is exercised, not skipped) and builds the Astro
+  dashboard; least-privilege `GITHUB_TOKEN`, per-ref concurrency, and job timeouts. Added
+  `.github/CODEOWNERS`; fixed the `SECURITY.md` advisory link and added a Supported-versions note.
 - **Himalayas ingestion source** (`ingestion/adapters/himalayas.py`) — a remote-first board
   whose free JSON API ships an explicit `locationRestrictions` list per posting ("Worldwide",
   "United States", or a country set). That maps straight onto the `location` field, so the
