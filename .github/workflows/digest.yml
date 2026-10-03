@@ -11,6 +11,11 @@
 #   GROQ_API_KEY          (or GEMINI_API_KEY / OPENROUTER_API_KEY — at least one)
 #   TELEGRAM_BOT_TOKEN
 #   TELEGRAM_CHAT_ID
+# RECOMMENDED — same Secrets page:
+#   JOBAGENT_PROFILE_JSON your data/profile.json as one JSON string (target_roles,
+#                         core_skills, skill_weights, remote_scope, geo_* …) so CI
+#                         matches YOUR search, not the committed placeholder profile.
+#                         It is PII — keep it a secret, never commit it (R22).
 # OPTIONAL — same page, Variables tab (NOT secrets; these are not sensitive):
 #   LLM_PROVIDER          default groq
 #   INGEST_MAX_AGE_DAYS   default 45 below — also what keeps the cached store small
@@ -53,6 +58,16 @@ jobs:
           key: jobagent-db-${{ github.run_id }}
           restore-keys: jobagent-db-
 
+      # Your profile is a secret, never in the repo (R22). Write it to an ephemeral path
+      # OUTSIDE the cached data/ dir so the PII is not persisted in the Actions cache,
+      # and point the loader at it below via JOBAGENT_PROFILE_PATH. Skipped (falls back
+      # to the committed placeholder profile) when the secret is unset.
+      - name: Materialize profile from secret
+        if: ${{ secrets.JOBAGENT_PROFILE_JSON != '' }}
+        env:
+          PROFILE_JSON: ${{ secrets.JOBAGENT_PROFILE_JSON }}
+        run: printf '%s' "$PROFILE_JSON" > "$RUNNER_TEMP/profile.json"
+
       - name: Install
         run: pip install -e ".[llm]"
 
@@ -64,6 +79,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Your profile overlay (written above from the secret, or absent → placeholder).
+          JOBAGENT_PROFILE_PATH: ${{ runner.temp }}/profile.json
           # Ingest gate — also the primary control on cached-store growth.
           INGEST_MAX_AGE_DAYS: ${{ vars.INGEST_MAX_AGE_DAYS || '45' }}
           INGEST_LOCATIONS: ${{ vars.INGEST_LOCATIONS }}
